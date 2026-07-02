@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>تست تلگرام</title>
+</head>
+<body>
+
+<button onclick="testBot()">تست بات</button>
+
+<script>
+const BOT_TOKEN = "8687133754:AAEIvtI61moYzNCRLtsdU3-U5tUMxJkb9bU";
+const CHAT_ID = "6512853118";   // چت آیدی خودت
+
+async function testBot() {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=✅ تست موفق بود!`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        console.log(data);
+        alert(data.ok ? "✅ ارسال شد!" : "❌ مشکل: " + data.description);
+    } catch(e) {
+        alert("خطای اتصال: " + e.message);
+        console.error(e);
+    }
+}
+</script>
+</body>
+</html>
