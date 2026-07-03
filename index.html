@@ -12,10 +12,11 @@
 <script>
 async function sendMessage() {
     let matn = document.querySelector("#input")
+    alert(matn.value)
     const BOT_TOKEN = "8687133754:AAEIvtI61moYzNCRLtsdU3-U5tUMxJkb9bU";
     const CHAT_ID = "6512853118";
 
-    const text = matn;
+    const text = matn.value;
 
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
