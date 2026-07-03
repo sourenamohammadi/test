@@ -83,12 +83,11 @@
     </style>
     <div class="div-main">
         <input id="input" placeholder="هر چی میخوای بنویس به علاوه ساعت"/>
-        <button onclick="sendMessage()">ارسال پیام تست</button>
+        <button onclick="sendMessage()">ارسال پیام</button>
     </div>
 <script>
 async function sendMessage() {
     let matn = document.querySelector("#input")
-    alert("you send this message : ",matn.value)
     const BOT_TOKEN = "8687133754:AAEIvtI61moYzNCRLtsdU3-U5tUMxJkb9bU";
     const CHAT_ID = "6512853118";
 
