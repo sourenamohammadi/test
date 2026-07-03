@@ -7,14 +7,15 @@
 <body>
 
 <button onclick="sendMessage()">ارسال پیام تست</button>
+<input id="input" placeholder="هر چی میخوای بنویس به علاوه ساعت"/>
 
 <script>
 async function sendMessage() {
-
+    let matn = document.querySelector("#input")
     const BOT_TOKEN = "8687133754:AAEIvtI61moYzNCRLtsdU3-U5tUMxJkb9bU";
     const CHAT_ID = "6512853118";
 
-    const text = "✅ پیام تست از سایت ارسال شد.";
+    const text = matn;
 
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
